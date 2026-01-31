@@ -9,37 +9,105 @@
 </head>
 
 <body>
+  <input type="file" id="input" multiple>
+  <br>
+  <pre>
+    <code>
+    getIframeDocument(0).then(document => {
+        debugger;
+        // document.getElementsByTagName("a");
+    });
+    </code>
+  </pre>
+  <script>
+    let globalObj = undefined;
+    const readText = file => new Promise((resolve) => {
+        const reader = new FileReader();
 
-    <button id="btn-create-iframe">Create iframe</button>
-    <button id="btn-eval-iframe">Run eval in iframe</button>
-    <script>
-        var iframe = null;
+        reader.onload = (event) => {
+            resolve({fileName: file.name.substr(0, file.name.lastIndexOf(".")), content: new TextDecoder().decode(event.target.result)})
+        }
+        reader.readAsArrayBuffer(file)
+    });
 
-        const btnCreateIframe = document.getElementById("btn-create-iframe");
-
-        btnCreateIframe.addEventListener("click", function (e) {
-            // Ensure the iframe content is fully loaded before accessing
-            iframe = document.createElement("iframe");
-            iframe.addEventListener('load', function () {
-                var sourceCode = iframe.contentDocument.documentElement.outerHTML;
-                console.log(sourceCode);
-            });
-
-            // iframe.style.borderRadius = "12px";
-            iframe.srcdoc = "<h1 style='background-color: blue'>I am inside iframe</h1>";
-            iframe.loading = "lazy";
-            iframe.allowFullscreen = "false";
-            iframe.allow = "autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture";
-            iframe.width = "100%";
-            iframe.frameBorder = "1";
-            document.body.insertBefore(iframe, document.body.firstChild);
+    const inputElement = document.getElementById("input");
+    inputElement.addEventListener("change", function () {
+      const fileList = this.files;
+        Promise
+        .all(
+            Array
+            .from(fileList)
+            .map(file => readText(file)))
+        .then(obj => {
+            globalObj = obj;
+            console.table(globalObj);
         });
+    }, false);
 
-        const btnEvalIframe = document.getElementById("btn-eval-iframe");
-        btnEvalIframe.addEventListener("click", function (e) {
-            alert(iframe.contentDocument.documentElement.querySelector("body > h1").innerText);
+    var iframe = null;
+
+    /*
+    getIframeDocument(0).then(document => {
+        debugger;
+        document.getElementsByTagName("a");
+    });
+    */
+    const getIframeDocument = (index) => new Promise((resolve) => {
+        if (iframe) {
+            document.body.removeChild(iframe);
+        }
+        iframe = document.createElement("iframe");
+        iframe.addEventListener('load', function () {
+            // var sourceCode = iframe.contentDocument.documentElement.outerHTML;
+            // console.log(sourceCode);
+            resolve(iframe.contentDocument.documentElement);
         });
-    </script>
+        // iframe.style.borderRadius = "12px";
+        iframe.srcdoc = globalObj[index].content;
+        iframe.loading = "lazy";
+        iframe.allowFullscreen = "false";
+        iframe.allow = "autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture";
+        iframe.width = "100%";
+        iframe.frameBorder = "1";
+        document.body.insertBefore(iframe, document.body.firstChild);
+    });
+    
+//     function diff(oldIndex, newIndex) {
+//       const oldArray = globalObj[oldIndex].content; // check devtools' console for new array index
+//       const newArray = globalObj[newIndex].content; // check devtools' console for new array index
+//       console.table(oldArray.filter(oldElement => !newArray.map(newElement => newElement["id"]).includes(oldElement["id"])));
+//     }
+    
+//   /*  
+//     function removeDuplicate(getKey) {
+//       console.log(globalObj.filter((a, index) => arr.map(b => getKey(b)).indexOf(getKey(a)) === index));
+//     }*/
+//     function removeDuplicates() {
+//       // Create a Set to store unique IDs
+//       const uniqueIds = new Set();
+    
+//       // Filter the array to remove duplicates
+//       console.log(formatJSONString(globalObj.reduce((pp, cc) => ([...pp, ...cc.content]), []).filter(obj => {
+//         // If the ID is not in the Set, add it and keep the object
+//         if (!uniqueIds.has(obj.id)) {
+//           uniqueIds.add(obj.id);
+//           return true;
+//         }
+//         // Otherwise, discard the object
+//         return false;
+//       })));
+//     }
+
+//     function formatJSONString(value) {
+//       return JSON.stringify(value, null, 2);
+//     }
+
+//     function mergeArrays(array, idGetter) {
+//       array.map(a => [idGetter(a), ({...a})])
+//     }
+
+    
+  </script>
 </body>
 
 </html>

@@ -60,7 +60,10 @@
         iframe.addEventListener('load', function () {
             // var sourceCode = iframe.contentDocument.documentElement.outerHTML;
             // console.log(sourceCode);
-            resolve((iframe.contentWindow || iframe), (iframe.contentDocument || iframe.contentWindow.document));
+            resolve({
+              window: (iframe.contentWindow || iframe),
+              document: (iframe.contentDocument || iframe.contentWindow.document)
+            });
         });
         // iframe.style.borderRadius = "12px";
         iframe.srcdoc = globalObj[index].content;

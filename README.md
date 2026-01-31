@@ -1,4 +1,2 @@
-[iframe-playground](https://dirkarnez.github.io/iframe-playground)
-==================================================================
-### Possible usages
-- as a living html parser / evalutator
+[html-repl](https://dirkarnez.github.io/html-repl)
+==================================================
